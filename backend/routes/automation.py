@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from services.github_service import commit_file, create_branch, create_pr
 from graph.flow import build_graph
 from logger import get_logger
+from services.jira_service import update_jira_with_file
 
 logger = get_logger(__name__)
 
@@ -21,13 +22,18 @@ def generate(payload: dict):
         "intent": payload["intent"]
     })
 
+    rule_number = payload["intent"].get("rule_number")
+    file_path = result.get("file_path")
+
+    if rule_number and file_path:
+        update_jira_with_file(rule_number, file_path)
+
     return {
         "code": result["generated_code"],
         "file_path": result["file_path"],
         "diff": result["diff"],
-        "validation": result.get("validation")  # optional but useful
+        "validation": result.get("validation")
     }
-
 
 @router.post("/create-pr")
 def create_pr_route(payload: dict):

@@ -9,6 +9,9 @@ class AutomationState(TypedDict):
     template: str
     generated_code: str
     file_path: str
-    diff: str
+    diff: Dict
     pr_url: str
     helper_expressions: List[Dict]
+    test_code: str   
+    test_file_path: str 
+    chat_history: List[Dict] 

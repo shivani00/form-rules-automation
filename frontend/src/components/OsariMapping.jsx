@@ -86,7 +86,7 @@ export default function OsariMapping() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col space-y-4 overflow-hidden">
 
       {/* HEADER */}
       <div className="flex justify-between items-center mb-2">
@@ -132,7 +132,9 @@ export default function OsariMapping() {
 
       {/* TABLE */}
       <div className="bg-white rounded-2xl shadow border border-gray-200">
-        <div className="overflow-x-auto">
+
+        {/* TABLE SCROLL AREA */}
+        <div className="max-h-[500px] overflow-auto">
           <table className="min-w-[1800px] w-full text-sm border-collapse">
 
             <thead className="bg-red-600 text-white">

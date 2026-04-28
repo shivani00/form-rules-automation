@@ -3,6 +3,7 @@ import os
 from uuid import uuid4
 from config import config
 from logger import get_logger
+from datetime import datetime
 
 logger = get_logger(__name__)
 
@@ -22,19 +23,83 @@ def write_data(data):
         json.dump(data, f, indent=2)
 
 
+def normalize_rule(rule_number: str):
+    """Remove (00) or any suffix"""
+    if not rule_number:
+        return None
+    return rule_number.split("(")[0]
+
+
 def save_jira_result(jira_url, intent):
     data = read_data()
 
-    entry = {
+    raw_rule_number = intent.get("rule_number")
+    rule_number = normalize_rule(raw_rule_number)
+
+    if not rule_number:
+        logger.error("Missing rule_number in intent. Skipping save.")
+        return {"error": "rule_number missing"}
+
+    logger.info(f"Saving Jira for rule: {rule_number}")
+
+    existing = next(
+        (item for item in data if item.get("rule_number") == rule_number),
+        None
+    )
+
+    story = {
         "id": str(uuid4()),
         "jira_url": jira_url,
-        "intent": intent
+        "created_at": datetime.utcnow().isoformat()
     }
 
-    data.append(entry)
+    if existing:
+        logger.info(f"Appending story to rule: {rule_number}")
+
+        existing.setdefault("stories", []).append(story)
+
+        # keep latest metadata
+        existing["form_number"] = intent.get("form_number")
+        existing["workstream"] = intent.get("workstream")
+
+    else:
+        logger.info(f"Creating new rule entry: {rule_number}")
+
+        entry = {
+            "rule_number": rule_number,
+            "form_number": intent.get("form_number"),
+            "workstream": intent.get("workstream"),
+            "stories": [story]
+        }
+
+        data.append(entry)
+
     write_data(data)
 
-    return entry
+    return {
+        "intent": intent,
+        "story_id": story["id"]
+    }
+
+
+def update_jira_with_file(rule_number, file_path):
+    data = read_data()
+
+    rule_number = normalize_rule(rule_number)
+
+    updated = False
+
+    for rule in data:
+        if rule.get("rule_number") == rule_number:
+            if rule.get("stories"):
+                rule["stories"][-1]["file_path"] = file_path
+                updated = True
+
+    if updated:
+        logger.info(f"Updated file_path for rule: {rule_number}")
+        write_data(data)
+    else:
+        logger.warning(f"No story found for rule: {rule_number}")
 
 
 def get_all_jira():

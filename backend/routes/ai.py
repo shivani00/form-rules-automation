@@ -3,12 +3,21 @@ from agents.jira_agent import get_jira_agent
 from services.jira_service import save_jira_result, get_all_jira
 from logger import get_logger
 from utils.validator import extract_json
+from agents.explain_agent import get_explain_agent
+
+explain_agent = get_explain_agent()
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/ai")
 
 jira_agent = get_jira_agent()
+
+
+def normalize_rule(rule_number: str):
+    if not rule_number:
+        return None
+    return rule_number.split("(")[0]
 
 
 @router.post("/analyze-jira")
@@ -57,6 +66,52 @@ IMPORTANT:
     return saved
 
 
-@router.get("/jira-history")
-def get_history():
-    return get_all_jira()
+@router.get("/jira-rules")
+def get_rule_list():
+    data = get_all_jira()
+
+    rules = [
+        {
+            "rule_number": r.get("rule_number"),
+            "form_number": r.get("form_number"),
+            "story_count": len(r.get("stories", []))
+        }
+        for r in data
+    ]
+
+    # sort latest first
+    rules = sorted(rules, key=lambda x: x["rule_number"], reverse=True)
+
+    logger.info(f"Returning {len(rules)} rules")
+
+    return rules
+
+
+@router.get("/jira-by-rule/{rule_number}")
+def get_jira_by_rule(rule_number: str):
+
+    rule_number = normalize_rule(rule_number)
+
+    logger.info(f"Fetching Jira stories for rule: {rule_number}")
+
+    data = get_all_jira()
+
+    match = next(
+        (r for r in data if r.get("rule_number") == rule_number),
+        None
+    )
+
+    if not match:
+        return {"message": "No Jira found"}
+
+    stories = sorted(
+        match.get("stories", []),
+        key=lambda x: x.get("created_at", ""),
+        reverse=True
+    )
+
+    return {
+        "rule_number": match.get("rule_number"),
+        "form_number": match.get("form_number"),
+        "stories": stories
+    }

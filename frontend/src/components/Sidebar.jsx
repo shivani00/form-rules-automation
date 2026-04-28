@@ -10,7 +10,7 @@ export default function Sidebar({ setTab }) {
   ];
 
   return (
-    <div className="w-64 bg-white shadow-xl p-4">
+    <div className="w-64 h-full bg-white shadow-xl p-4">
       <h1 className="text-xl font-bold text-red-600 mb-4">Rule Platform</h1>
 
       {items.map(i => (

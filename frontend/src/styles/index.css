@@ -17,3 +17,8 @@ body {
 .input {
   @apply border p-2 rounded w-full;
 }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
