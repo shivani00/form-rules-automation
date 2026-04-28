@@ -1,0 +1,21 @@
+[
+  {
+    "objectId": "1234",
+    "objectName": "MI Controlled Coverage Ind",
+    "pathType": "",
+    "auto": false,
+    "cmp": false,
+    "umb": false,
+    "wc": true,
+    "context": "",
+    "effectiveVersion": null,
+    "expiryVersion": null,
+    "entity": "Coverage Provided",
+    "attribute": "",
+    "path": "/policy/workCompCovPart/simpleCovPartCovList/coverageProvided[sourceCoverageCd/code=\"MCDMI\"",
+    "pathNotes": null,
+    "lastUpdated": "",
+    "stereotype": false,
+    "id": "f84e2f3e-210e-4ac6-893f-d23e74215f0a"
+  }
+]

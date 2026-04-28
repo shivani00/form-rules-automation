@@ -1,0 +1,459 @@
+[
+  {
+    "id": "0e6f3d26-7a02-4a31-8862-767b15f917ed",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "form_number": "WA12002233(00)",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "FRM 35480",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "WC"
+      ],
+      "conditions": []
+    }
+  },
+  {
+    "id": "7160672c-a213-46d8-9051-5d5a3e76a8d2",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "form_number": "WA12002233(00)",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "FRM 35480",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "WC"
+      ],
+      "conditions": []
+    }
+  },
+  {
+    "id": "eff64eef-0ef6-4804-b341-b23ca0793211",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "form_number": "WA12002233(00)",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "FRM 35480",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "WC"
+      ],
+      "conditions": []
+    }
+  },
+  {
+    "id": "80fe9080-96b3-4ae4-910b-00df08775d3d",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [],
+      "transactions": [],
+      "conditions": []
+    }
+  },
+  {
+    "id": "c28c7401-360f-4862-95df-9a824f5adcf8",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [],
+      "transactions": [],
+      "conditions": []
+    }
+  },
+  {
+    "id": "8894c6a2-cb45-44f9-aec5-feb7c6ccbeaa",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [],
+      "transactions": [],
+      "conditions": []
+    }
+  },
+  {
+    "id": "3af92c02-48da-4a18-a0a4-5083de14a47e",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "22d9923e-564e-49ca-ae1b-1210c4852314",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "5032bf0a-3b17-4b02-b6b7-57deef738e77",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ef9a0e9b-f849-4d09-9c64-e50016aafa3d",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "7c5af3eb-2d68-4bd7-b7e2-39723d70d356",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f4bc3df4-9597-4dbc-b13b-c810a6c66596",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "767ba397-05b8-45cb-b4bb-6c1b0d00fdf6",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "03a9c9c5-3d43-4616-a71e-c8d5670ea43e",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "512aa6c7-f481-40d6-a805-51cc2c50ddd3",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "74f98ccc-511f-4eec-9fee-9751b33e6cbd",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ea61f1cb-8b92-4b3c-b5f5-90f589f0bb18",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controller Insurance",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  }
+]

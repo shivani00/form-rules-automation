@@ -1,0 +1,132 @@
+[
+  {
+    "ruleType": "ABC123",
+    "workstream": "WC",
+    "businessUnit": "IMCE",
+    "rollupGroups": "",
+    "subGroups": "",
+    "productType": "",
+    "states": [
+      {
+        "stateCd": "MI",
+        "stateName": "Michigan"
+      },
+      {
+        "stateCd": "RI",
+        "stateName": "Rhode Island"
+      }
+    ],
+    "stateType": "",
+    "transactions": "New Business",
+    "user": "",
+    "effectiveIRID": "",
+    "implementation": "",
+    "effectiveDate": "",
+    "expirationIRID": "",
+    "implementationDate": "",
+    "expirationDate": "",
+    "conditions": [
+      {
+        "attributeName": "MI Coverage ",
+        "oid": "1234",
+        "value": "Yes",
+        "operator": "=",
+        "logic": "AND"
+      }
+    ],
+    "thenActions": [
+      {
+        "action": "Derive Form",
+        "value": "Yes"
+      },
+      {
+        "action": "Eligible for Local Print ",
+        "value": "No"
+      }
+    ],
+    "form": {
+      "objectName": "ABC123",
+      "formTitle": "MI/RI Controlled Insurance ",
+      "formShortName": "MI/RI Cntrl Ins",
+      "formType": "",
+      "workstream": "",
+      "printHandlingTypeCode": "",
+      "reprintOnChange": "",
+      "policyTab": "N",
+      "pullListIndicator": "Y",
+      "singleTermForm": "",
+      "toBeRationalizedDate": "2025-12-30",
+      "rationalizedDate": "2025-12-30",
+      "rationalizationPriority": "",
+      "fillInAttribute": "",
+      "notes": "",
+      "expired": "",
+      "requestor": "shivani",
+      "requestDate": "2025-12-30"
+    },
+    "id": "82bef6b0-536b-4429-960f-c6ee8d125b22"
+  },
+  {
+    "ruleType": "WA1200223300",
+    "workstream": "WC",
+    "businessUnit": "",
+    "rollupGroups": "",
+    "subGroups": "",
+    "productType": "",
+    "states": [
+      {
+        "stateCd": "MI",
+        "stateName": "Michigan"
+      }
+    ],
+    "stateType": "Exposure",
+    "transactions": "Manual Renewal Conversion, New Business, Renewal, Rewrite Same, Rewrite New, Change",
+    "user": "Employee",
+    "effectiveIRID": "DM_US111111",
+    "implementation": "2026-01-01",
+    "effectiveDate": "2026-01-01",
+    "expirationIRID": "",
+    "implementationDate": "",
+    "expirationDate": "",
+    "conditions": [
+      {
+        "attributeName": "MI Controlled Coverage Ind",
+        "oid": "1234",
+        "value": "Yes",
+        "operator": "=",
+        "logic": "AND"
+      }
+    ],
+    "thenActions": [
+      {
+        "action": "Derive Form",
+        "value": "Yes"
+      },
+      {
+        "action": "Eligible for LocalPrint",
+        "value": "No"
+      }
+    ],
+    "form": {
+      "objectName": "FRM 35480",
+      "formTitle": "MI/RI Controlled Insurance",
+      "formShortName": "Text",
+      "formType": "",
+      "workstream": "",
+      "printHandlingTypeCode": "N",
+      "reprintOnChange": "Y",
+      "policyTab": "",
+      "pullListIndicator": "N",
+      "singleTermForm": "",
+      "toBeRationalizedDate": "2025-12-30",
+      "rationalizedDate": "2025-12-30",
+      "rationalizationPriority": "",
+      "fillInAttribute": "",
+      "notes": "",
+      "expired": "",
+      "requestor": "shivani",
+      "requestDate": "2025-12-30"
+    },
+    "id": "bf4172ce-47d8-450b-ba6d-14fbb6eb25de"
+  }
+]
