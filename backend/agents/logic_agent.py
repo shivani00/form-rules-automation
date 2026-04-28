@@ -1,8 +1,6 @@
 # agents/logic_agent.py
 
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-# create_openai_tools_agent, 
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.agents import create_agent
 from core.llm import get_llm
 from logger import get_logger
 
@@ -13,8 +11,10 @@ def get_logic_agent():
 
     llm = get_llm()
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", """
+    return create_agent(
+        model=llm,
+        tools=[],
+        system_prompt="""
 You are a Rule Logic Builder.
 
 You will receive conditions that are ALREADY enriched with:
@@ -82,17 +82,7 @@ OUTPUT FORMAT
     }
   ]
 }}
-"""),
-        ("human", "{input}"),
-        MessagesPlaceholder("agent_scratchpad")
-    ])
 
-    # agent = create_openai_tools_agent(llm, [], prompt)
-    agent = create_tool_calling_agent(llm, [], prompt)
-
-    return AgentExecutor(
-        agent=agent,
-        tools=[],
-        verbose=True,
-        handle_parsing_errors=True
+Return ONLY JSON.
+"""
     )

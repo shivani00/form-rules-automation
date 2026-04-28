@@ -8,10 +8,7 @@ from routes.ai import router as ai_router
 from routes.automation import router as automation_router
 from logger import get_logger
 from config import config
-from langchain.globals import set_debug, set_verbose
 
-set_debug(True)
-set_verbose(True)
 
 logger = get_logger("main")
 

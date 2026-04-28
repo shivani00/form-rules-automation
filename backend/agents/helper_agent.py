@@ -1,17 +1,18 @@
-# agents/helper_agent.py
-
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-# create_openai_tools_agent,
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.agents import create_agent
 from core.llm import get_llm
 from logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def get_helper_agent():
 
     llm = get_llm()
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", """
+    return create_agent(
+        model=llm,
+        tools=[],
+        system_prompt="""
 You are a Helper Selection Agent.
 
 -----------------------------------
@@ -40,6 +41,7 @@ RULES
 - Match based on:
   - name
   - parameter signature
+
 For each helper:
 - helper.name → function name
 - helper.params → parameters to fill
@@ -75,12 +77,5 @@ IMPORTANT
 - DO NOT reuse example helper names
 - DO NOT assume helper names
 - Use helper.name and helper.params strictly
-"""),
-        ("human", "{input}"),
-        MessagesPlaceholder("agent_scratchpad")
-    ])
-
-    # agent = create_openai_tools_agent(llm, [], prompt)
-    agent = create_tool_calling_agent(llm, [], prompt)
-
-    return AgentExecutor(agent=agent, tools=[], verbose=True)
+"""
+    )

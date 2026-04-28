@@ -9,7 +9,7 @@ from graph.state import AutomationState
 from agents.rule_agent import get_rule_agent
 from agents.codegen_agent import get_codegen_agent
 from agents.github_agent import get_github_agent
-from utils.js_validator import validate_js
+from utils.validator import extract_json, validate_js
 from logger import get_logger
 from services.repo_retriever import retrieve_examples
 from utils.query_builder import build_query_from_logic
@@ -24,23 +24,34 @@ logic_agent = get_logic_agent()
 helper_agent = get_helper_agent()
 
 
+# ---------------- RULE NODE ----------------
 def rule_node(state: AutomationState):
 
     logger.info("Rule Node")
 
     result = rule_agent.invoke({
-        "input": json.dumps(state["intent"])
+        "messages": [
+            {"role": "user", "content": json.dumps(state["intent"])}
+        ]
     })
 
-    raw_output = result.get("output")
+    messages = result.get("messages", [])
+    if not messages:
+        raise ValueError("No response from agent")
+
+    message = messages[-1]
+
+    if isinstance(message.content, list):
+        raw_output = " ".join(
+            part.get("text", "") for part in message.content if isinstance(part, dict)
+        )
+    else:
+        raw_output = message.content
 
     logger.info(f"Rule agent output: {raw_output}")
 
     try:
-        if not raw_output:
-            logger.error("Empty output from codegen agent")
-            raise ValueError("LLM returned empty output")
-        parsed = json.loads(raw_output)
+        parsed = extract_json(raw_output)
     except:
         logger.error("Rule agent parsing failed")
         parsed = {"resolved_conditions": []}
@@ -49,64 +60,54 @@ def rule_node(state: AutomationState):
 
     return state
 
-def codegen_node(state):
 
-    logger.info("Codegen Node")
+# ---------------- LOGIC NODE ----------------
+def logic_node(state):
+
+    logger.info("Logic Node")
 
     intent = state["intent"]
-    logic = state["logic"]
 
-    # 🔥 STEP 1: BUILD QUERY
-    query = build_query_from_logic(logic)
+    result = logic_agent.invoke({
+        "messages": [
+            {
+                "role": "user",
+                "content": json.dumps({
+                    "conditions": state.get("resolved_conditions", []),
+                    "states": intent.get("states", []),
+                    "effective_date": intent.get("effective_date"),
+                    "transactions": intent.get("transactions", [])
+                })
+            }
+        ]
+    })
 
-    # 🔥 STEP 2: RETRIEVE CONTEXT
-    examples = retrieve_examples(
-        workstream=intent.get("workstream", "wc"),
-        query=query
-    ) if logic.get("rules") else []
+    messages = result.get("messages", [])
+    if not messages:
+        raise ValueError("No response from agent")
 
-    # 🔥 STEP 3: CALL AGENT
-    feedback = ""
-    for i in range(2):
-        result = codegen_agent.invoke({
-            "input": json.dumps({
-                "intent": intent,
-                "logic": logic,
-                "helper_expressions": state.get("helper_expressions", []),
-                "repo_examples": examples,
-                "patterns": RULE_PATTERNS,
-                "feedback": feedback
-            })
-        })
+    message = messages[-1]
 
-        raw_output = result.get("output")
+    if isinstance(message.content, list):
+        raw_output = " ".join(
+            part.get("text", "") for part in message.content if isinstance(part, dict)
+        )
+    else:
+        raw_output = message.content
 
-        try:
-            parsed = json.loads(raw_output)
-            code = parsed.get("code", "")
-        except:
-            code = ""
-            parsed = {}
+    logger.info(f"Logic agent output: {raw_output}")
 
-        errors = validate_template(code)
+    try:
+        parsed = extract_json(raw_output)
+    except:
+        parsed = {"logic": "AND", "rules": []}
 
-        if not errors:
-            break
-
-        # 🔥 feedback loop
-        feedback = f"Fix these issues: {errors}"
-
-    code = parsed.get("code", "")
-    file_path = parsed.get("file_path", "")
-
-    validation = validate_js(code)
-
-    state["generated_code"] = code
-    state["file_path"] = file_path
-    state["validation"] = validation
+    state["logic"] = parsed
 
     return state
 
+
+# ---------------- HELPER NODE ----------------
 def helper_node(state):
 
     logger.info("Helper Node")
@@ -114,23 +115,41 @@ def helper_node(state):
     intent = state["intent"]
     logic = state["logic"]
 
-    helpers = fetch_helpers.run({
-        "workstream": intent.get("workstream", "wc")
+    helpers = fetch_helpers.invoke({
+        "workstream": intent.get("workstream", "wc"),
+        "form_type": intent.get("form_type", "text")
     })
 
     result = helper_agent.invoke({
-        "input": json.dumps({
-            "logic": logic,
-            "helpers": helpers
-        })
+        "messages": [
+            {
+                "role": "user",
+                "content": json.dumps({
+                    "logic": logic,
+                    "helpers": helpers
+                })
+            }
+        ]
     })
 
-    try:
-        parsed = json.loads(result.get("output", "{}"))
-    except:
-        parsed = {"expressions": []}
+    messages = result.get("messages", [])
+    if not messages:
+        raise ValueError("No response from agent")
 
-    expressions = parsed.get("expressions", [])
+    message = messages[-1]
+
+    if isinstance(message.content, list):
+        raw_output = " ".join(
+            part.get("text", "") for part in message.content if isinstance(part, dict)
+        )
+    else:
+        raw_output = message.content
+
+    try:
+        parsed = extract_json(raw_output)
+        expressions = parsed.get("expressions", [])
+    except:
+        expressions = []
 
     if not expressions:
         logger.warning("No helper expressions found, falling back to logic paths")
@@ -139,19 +158,84 @@ def helper_node(state):
 
     return state
 
+
+# ---------------- CODEGEN NODE ----------------
+def codegen_node(state):
+
+    logger.info("Codegen Node")
+
+    intent = state["intent"]
+    logic = state["logic"]
+
+    query = build_query_from_logic(logic)
+
+    examples = retrieve_examples(
+        workstream=intent.get("workstream", "wc"),
+        query=query
+    ) if logic.get("rules") else []
+
+    feedback = ""
+
+    for i in range(2):
+
+        result = codegen_agent.invoke({
+            "messages": [
+                {
+                    "role": "user",
+                    "content": json.dumps({
+                        "intent": intent,
+                        "logic": logic,
+                        "repo_examples": examples,
+                        "helper_expressions": state.get("helper_expressions", []),
+                        "patterns": RULE_PATTERNS,
+                        "feedback": feedback
+                    })
+                }
+            ]
+        })
+
+        messages = result.get("messages", [])
+        if not messages:
+            raise ValueError("No response from agent")
+
+        message = messages[-1]
+
+        if isinstance(message.content, list):
+            raw_output = " ".join(
+                part.get("text", "") for part in message.content if isinstance(part, dict)
+            )
+        else:
+            raw_output = message.content
+
+        try:
+            parsed = extract_json(raw_output)
+            code = parsed.get("code", "")
+        except:
+            parsed = {}
+            code = ""
+
+        errors = validate_template(code)
+
+        if not errors:
+            break
+
+        feedback = f"Fix these issues: {errors}"
+
+    state["generated_code"] = parsed.get("code", "")
+    state["file_path"] = parsed.get("file_path", "")
+    state["validation"] = validate_js(state["generated_code"])
+
+    return state
+
+
+# ---------------- DIFF NODE ----------------
 def diff_node(state: AutomationState):
 
     logger.info("Diff Node")
 
     new_code = state["generated_code"].split("\n")
 
-    diff_lines = []
-
-    for line in new_code:
-        diff_lines.append({
-            "type": "added",
-            "content": line
-        })
+    diff_lines = [{"type": "added", "content": line} for line in new_code]
 
     state["diff"] = {
         "file_path": state["file_path"],
@@ -160,43 +244,17 @@ def diff_node(state: AutomationState):
 
     return state
 
-def logic_node(state):
 
-    logger.info("Logic Node")
-
-    intent = state["intent"]
-
-    result = logic_agent.invoke({
-        "input": json.dumps({
-            "conditions": state.get("resolved_conditions", []),
-            "states": intent.get("states", []),
-            "effective_date": intent.get("effective_date"),
-            "transactions": intent.get("transactions", [])
-        })
-    })
-
-    raw_output = result.get("output")
-
-    logger.info(f"Logic agent output: {raw_output}")
-
-    try:
-        parsed = json.loads(raw_output)
-    except:
-        parsed = {"logic": "AND", "rules": []}
-
-    state["logic"] = parsed
-
-    return state
-
+# ---------------- GRAPH ----------------
 def build_graph():
 
     builder = StateGraph(AutomationState)
 
     builder.add_node("rule_node", rule_node)
     builder.add_node("logic_node", logic_node)
+    builder.add_node("helper_node", helper_node)
     builder.add_node("codegen_node", codegen_node)
     builder.add_node("diff_node", diff_node)
-    builder.add_node("helper_node", helper_node)
 
     builder.set_entry_point("rule_node")
 
@@ -204,11 +262,12 @@ def build_graph():
     builder.add_edge("logic_node", "helper_node")
     builder.add_edge("helper_node", "codegen_node")
     builder.add_edge("codegen_node", "diff_node")
-
     builder.add_edge("diff_node", END)
 
     return builder.compile()
 
+
+# ---------------- VALIDATOR ----------------
 def validate_template(code):
 
     errors = []

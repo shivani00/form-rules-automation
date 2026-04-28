@@ -1,8 +1,4 @@
-# agents/github_agent.py
-
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-# create_openai_tools_agent, 
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.agents import create_agent
 from core.llm import get_llm
 from logger import get_logger
 
@@ -10,24 +6,35 @@ logger = get_logger(__name__)
 
 
 def get_github_agent():
-
     llm = get_llm()
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", """
+    return create_agent(
+        model=llm,
+        tools=[],
+        system_prompt="""
 You are a Git Assistant.
 
+-----------------------------------
+TASK
+-----------------------------------
 Generate a diff preview between:
 - new file content
 - empty file
 
-Return readable diff.
-"""),
-        ("human", "{input}"),
-        MessagesPlaceholder("agent_scratchpad")
-    ])
+-----------------------------------
+OUTPUT
+-----------------------------------
+Return a readable unified diff format.
 
-    # agent = create_openai_tools_agent(llm, [], prompt)
-    agent = create_tool_calling_agent(llm, [], prompt)
+Example:
 
-    return AgentExecutor(agent=agent, tools=[], verbose=True, handle_parsing_errors=True)
++ added line
+- removed line
+
+-----------------------------------
+IMPORTANT
+-----------------------------------
+- Do NOT explain anything
+- Return ONLY diff output
+"""
+    )

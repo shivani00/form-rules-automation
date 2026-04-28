@@ -38,9 +38,9 @@ OUTPUT (STRICT JSON)
 -----------------------------------
 Return ONLY:
 
-{
+{{
   "resolved_conditions": []
-}
+}}
 
 -----------------------------------
 IMPORTANT

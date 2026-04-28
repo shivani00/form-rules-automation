@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from agents.jira_agent import get_jira_agent
 from services.jira_service import save_jira_result, get_all_jira
 from logger import get_logger
-import json
+from utils.validator import extract_json
 
 logger = get_logger(__name__)
 
@@ -13,10 +13,17 @@ jira_agent = get_jira_agent()
 
 @router.post("/analyze-jira")
 def analyze_jira(payload: dict):
+
     jira_url = payload.get("jira_url")
 
+    if not jira_url:
+        return {"error": "jira_url is required"}
+
     result = jira_agent.invoke({
-    "input": f"""
+        "messages": [
+            {
+                "role": "user",
+                "content": f"""
 Process Jira story: {jira_url}
 
 IMPORTANT:
@@ -24,17 +31,27 @@ IMPORTANT:
 - WC is workstream, not transaction
 - Extract OID conditions
 """
-})
+            }
+        ]
+    })
 
-    output = result.get("output", {})
+    messages = result.get("messages", [])
+    if not messages:
+        raise ValueError("No response from agent")
 
-    if isinstance(output, str):
-        try:
-            output = json.loads(output)
-        except:
-            output = {"raw": output}
+    message = messages[-1]
 
-    # 🔥 SAVE HISTORY
+    if isinstance(message.content, list):
+        raw_output = " ".join(
+            part.get("text", "") for part in message.content if isinstance(part, dict)
+        )
+    else:
+        raw_output = message.content
+
+    logger.info(f"Jira agent raw output: {raw_output}")
+
+    output = extract_json(raw_output)
+
     saved = save_jira_result(jira_url, output)
 
     return saved

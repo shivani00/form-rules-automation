@@ -455,5 +455,101 @@
         }
       ]
     }
+  },
+  {
+    "id": "34e19d21-3c8b-4574-8a4f-e8ccf18aea56",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controlled Insurance Form",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "d653a9de-17f6-473f-b4c9-f0e29e4f0795",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controlled Insurance Form",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
+  },
+  {
+    "id": "334971dd-29fb-40c5-b193-2998d8754ff6",
+    "jira_url": "https://formslibrary.atlassian.net/browse/STORY-5",
+    "intent": {
+      "action": "create",
+      "rule_number": "WA12002233(00)",
+      "form_number": "FRM 35480",
+      "form_title": "MI/RI Controlled Insurance Form",
+      "form_short_name": "MI/RI Cntrl Ins",
+      "workstream": "WC",
+      "effective_date": "2026-01-01",
+      "states": [
+        "MI",
+        "RI"
+      ],
+      "transactions": [
+        "New Business",
+        "Change",
+        "Renewal",
+        "Rewrite Same",
+        "Rewrite New",
+        "Manual Renewal Conversion"
+      ],
+      "conditions": [
+        {
+          "attribute": "MI Controlled Coverage Indicator",
+          "oid": "1234",
+          "value": "Yes"
+        }
+      ]
+    }
   }
 ]

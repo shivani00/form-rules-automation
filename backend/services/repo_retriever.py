@@ -1,33 +1,73 @@
 # services/repo_retriever.py
 
-import os
+import base64
+from config import config
 from logger import get_logger
+from typing import List, Dict
+from github import Github
 
 logger = get_logger(__name__)
 
-BASE_DIR = "repo_clone"  # your local repo copy
+g = Github(config.GITHUB_TOKEN)
+repo = g.get_repo(config.GITHUB_REPO)
 
+def load_files(
+    workstream: str,
+    form_type: str = "text",
+    include_helpers: bool = False
+) -> List[Dict]:
+    """
+    Load JS files directly from GitHub repo.
 
-def load_files(workstream: str):
-    """Load only relevant files (scoped retrieval)"""
+    Args:
+        workstream: wc, auto, etc.
+        form_type: text / fillin
+        include_helpers: include helper files or not
 
-    files = []
+    Returns:
+        List of {path, content}
+    """
 
-    base_path = os.path.join(BASE_DIR, f"forms-{workstream}")
+    files: List[Dict] = []
 
-    for root, _, filenames in os.walk(base_path):
-        for f in filenames:
-            if f.endswith(".js"):
+    folder = "fillin-forms" if form_type.lower() == "fillin" else "text-forms"
+
+    base_path = f"forms-{workstream.lower()}/{folder}"
+
+    try:
+        contents = repo.get_contents(base_path, ref=config.GITHUB_BASE_BRANCH)
+    except Exception as e:
+        logger.error(f"Failed to fetch repo contents: {e}")
+        return files
+
+    def walk(contents_list):
+        for item in contents_list:
+
+            # 🔥 skip .config unless helpers needed
+            if not include_helpers and ".config" in item.path:
+                continue
+
+            if item.type == "dir":
                 try:
-                    with open(os.path.join(root, f), "r") as file:
-                        content = file.read()
+                    walk(repo.get_contents(item.path, ref=config.GITHUB_BASE_BRANCH))
+                except Exception as e:
+                    logger.error(f"Error reading dir {item.path}: {e}")
 
-                        files.append({
-                            "path": os.path.join(root, f),
-                            "content": content
-                        })
-                except:
-                    continue
+            elif item.path.endswith(".js"):
+                try:
+                    content = base64.b64decode(item.content).decode()
+
+                    files.append({
+                        "path": item.path,
+                        "content": content
+                    })
+
+                except Exception as e:
+                    logger.error(f"Error reading file {item.path}: {e}")
+
+    walk(contents)
+
+    logger.info(f"Loaded {len(files)} files from GitHub path: {base_path}")
 
     return files
 

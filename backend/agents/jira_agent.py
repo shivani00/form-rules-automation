@@ -1,7 +1,4 @@
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-# create_openai_tools_agent,
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-
+from langchain.agents import create_agent
 from tools.jira_tool import fetch_jira_story
 from core.llm import get_llm
 from logger import get_logger
@@ -14,10 +11,10 @@ def get_jira_agent():
 
     llm = get_llm()
 
-    tools = [fetch_jira_story]
-
-    prompt = ChatPromptTemplate.from_messages([
-("system", """
+    return create_agent(
+        model=llm,
+        tools=[fetch_jira_story],
+        system_prompt="""
 You are an expert insurance rule extraction agent.
 
 You MUST follow these steps STRICTLY:
@@ -94,11 +91,11 @@ Return ONLY JSON:
   "states": [],
   "transactions": [],
   "conditions": [
-    {{
+    {
       "attribute": "",
       "oid": "",
       "value": ""
-    }}
+    }
   ]
 }}
 
@@ -107,12 +104,5 @@ DO NOT:
 - put workstream in transactions
 - skip OIDs
 - add explanations
-"""),
-("human", "{input}"),
-MessagesPlaceholder(variable_name="agent_scratchpad")
-])
-
-    # agent = create_openai_tools_agent(llm, tools, prompt)
-    agent = create_tool_calling_agent(llm, tools, prompt)
-
-    return AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+"""
+    )

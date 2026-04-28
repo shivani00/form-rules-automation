@@ -7,6 +7,7 @@ from config import config
 from logger import get_logger
 import base64
 import re
+from typing import List, Dict
 
 logger = get_logger(__name__)
 
@@ -78,11 +79,11 @@ def prepare_file_path(workstream: str, rule_number: str, form_type: str = "text"
 
 
 @tool
-def fetch_helpers(workstream: str) -> list:
+def fetch_helpers(workstream: str, form_type: str = "text") -> List[Dict]:
     """
     Fetch helper functions from repo and return metadata
     """
-    files = load_files(workstream)  # reuse your repo loader
+    files = load_files(workstream, form_type, include_helpers=True)  # reuse your repo loader
 
     helpers = []
 

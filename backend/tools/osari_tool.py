@@ -3,12 +3,12 @@
 from langchain.tools import tool
 from services.osari_service import get_mappings
 from logger import get_logger
+from typing import List, Dict
 
 logger = get_logger(__name__)
 
-
 @tool
-def resolve_oids(conditions: list) -> list:
+def resolve_oids(conditions: List[Dict]) -> List[Dict]:
     """Resolve OIDs to mapping paths and entities"""
 
     logger.info("Resolving OIDs")

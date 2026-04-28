@@ -1,8 +1,6 @@
 # agents/codegen_agent.py
 
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-# create_openai_tools_agent, 
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.agents import create_agent
 from core.llm import get_llm
 from tools.github_tool import (
     fetch_template,
@@ -22,8 +20,10 @@ def get_codegen_agent():
         prepare_file_path
     ]
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", """
+    return create_agent(
+        model=llm,
+        tools=tools,
+        system_prompt="""
 You are a JavaScript Rule Compiler.
 
 You MUST generate code from structured logic.
@@ -165,17 +165,5 @@ FEEDBACK (IMPORTANT)
 If feedback is provided:
 - Fix the issues strictly
 - Do not repeat previous mistakes
-"""),
-        ("human", "{input}"),
-        MessagesPlaceholder("agent_scratchpad")
-    ])
-
-    # agent = create_openai_tools_agent(llm, tools, prompt)
-    agent = create_tool_calling_agent(llm, tools, prompt)
-
-    return AgentExecutor(
-        agent=agent,
-        tools=tools,
-        verbose=True,
-        handle_parsing_errors=True
+"""
     )
