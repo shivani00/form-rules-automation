@@ -24,10 +24,21 @@ def write_data(data):
 
 
 def normalize_rule(rule_number: str):
-    """Remove (00) or any suffix"""
+    """
+    Convert:
+    WASDR123(00) → WASDR12300
+    """
     if not rule_number:
         return None
-    return rule_number.split("(")[0]
+
+    return rule_number.replace("(", "").replace(")", "").strip()
+
+
+def normalize_url(url: str):
+    """Normalize Jira URL (remove trailing slash, lowercase)"""
+    if not url:
+        return None
+    return url.strip().rstrip("/").lower()
 
 
 def save_jira_result(jira_url, intent):
@@ -39,6 +50,8 @@ def save_jira_result(jira_url, intent):
     if not rule_number:
         logger.error("Missing rule_number in intent. Skipping save.")
         return {"error": "rule_number missing"}
+
+    jira_url_normalized = normalize_url(jira_url)
 
     logger.info(f"Saving Jira for rule: {rule_number}")
 
@@ -54,11 +67,27 @@ def save_jira_result(jira_url, intent):
     }
 
     if existing:
-        logger.info(f"Appending story to rule: {rule_number}")
+        logger.info(f"Checking duplicates for rule: {rule_number}")
+
+        existing_stories = existing.get("stories", [])
+
+        already_exists = any(
+            normalize_url(s.get("jira_url")) == jira_url_normalized
+            for s in existing_stories
+        )
+
+        if already_exists:
+            logger.info(f"Duplicate Jira found. Skipping save for: {jira_url}")
+
+            return {
+                "intent": intent,
+                "story_id": None
+            }
+
+        logger.info(f"Appending new Jira story to rule: {rule_number}")
 
         existing.setdefault("stories", []).append(story)
 
-        # keep latest metadata
         existing["form_number"] = intent.get("form_number")
         existing["workstream"] = intent.get("workstream")
 

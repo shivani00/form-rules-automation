@@ -81,6 +81,7 @@ def get_rule_list():
     rules = sorted(rules, key=lambda x: x["rule_number"], reverse=True)
 
     logger.info(f"Returning {len(rules)} rules")
+    logger.info(rules)
 
     return rules
 

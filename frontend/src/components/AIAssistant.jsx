@@ -359,6 +359,20 @@ Created: ${s.created_at}`
                         </div>
                       );
                     }
+
+                    if (typeof a === "object" && a.label && a.value) {
+                      return (
+                        <button
+                          key={idx}
+                          className="bg-blue-100 px-3 py-1 rounded-full"
+                          onClick={() => handleAction("select_rule", a.value)}
+                        >
+                          {a.label}
+                        </button>
+                      );
+                    }
+
+                    return null;
                   })}
 
                 </div>
