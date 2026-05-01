@@ -81,26 +81,5 @@ def save_jira_result(jira_url, intent):
         "story_id": story["id"]
     }
 
-
-def update_jira_with_file(rule_number, file_path):
-    data = read_data()
-
-    rule_number = normalize_rule(rule_number)
-
-    updated = False
-
-    for rule in data:
-        if rule.get("rule_number") == rule_number:
-            if rule.get("stories"):
-                rule["stories"][-1]["file_path"] = file_path
-                updated = True
-
-    if updated:
-        logger.info(f"Updated file_path for rule: {rule_number}")
-        write_data(data)
-    else:
-        logger.warning(f"No story found for rule: {rule_number}")
-
-
 def get_all_jira():
     return read_data()

@@ -9,7 +9,9 @@ export default function AIAssistant() {
 
   const [intent, setIntent] = useState(null);
   const [editedCode, setEditedCode] = useState("");
+  const [testCode, setTestCode] = useState(""); // 🔥 NEW
   const [showEditor, setShowEditor] = useState(false);
+  const [activeTab, setActiveTab] = useState("rule"); // 🔥 NEW
   const [sessionId, setSessionId] = useState(Date.now().toString());
 
   const bottomRef = useRef(null);
@@ -37,6 +39,25 @@ export default function AIAssistant() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const saved = localStorage.getItem("ai-editor");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setEditedCode(parsed.code || "");
+      setTestCode(parsed.test || "");
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "ai-editor",
+      JSON.stringify({
+        code: editedCode,
+        test: testCode
+      })
+    );
+  }, [editedCode, testCode]);
+
   const addMessage = (role, content, actions = []) => {
     setMessages(prev => [...prev, { role, content, actions }]);
   };
@@ -59,7 +80,7 @@ export default function AIAssistant() {
       addMessage(
         "assistant",
         JSON.stringify(data, null, 2),
-        ["approve", "analyze_more"] // ✅ FIXED
+        ["approve", "analyze_more"]
       );
     } catch {
       addMessage("assistant", "Something went wrong while analyzing the story.");
@@ -78,16 +99,17 @@ export default function AIAssistant() {
         { intent, session_id: sessionId }
       );
 
-      const code =
-        res.data?.diff?.changes?.map(l => l.content).join("\n") || "";
+      const code = res.data?.code || "";
+      const test = res.data?.test_code || "";
 
       setEditedCode(code);
+      setTestCode(test);
       setShowEditor(true);
 
       addMessage(
         "assistant",
-        "I’ve generated the rule.\n\nYou can review or ask me to make changes.",
-        ["create_pr"]
+        "I’ve generated the rule and test cases.\n\nYou can review them.",
+        ["create_pr", "make_changes"]
       );
     } catch {
       addMessage("assistant", "Failed to generate rule.");
@@ -110,10 +132,11 @@ export default function AIAssistant() {
         }
       );
 
-      const code =
-        res.data?.diff?.changes?.map(l => l.content).join("\n") || "";
+      const code = res.data?.code || "";
+      const test = res.data?.test_code || "";
 
       setEditedCode(code);
+      setTestCode(test);
       setShowEditor(true);
 
       addMessage("assistant", "Done 👍 Let me know if you want more changes.");
@@ -130,7 +153,13 @@ export default function AIAssistant() {
     try {
       const res = await axios.post(
         "http://localhost:8080/automation/create-pr",
-        { intent, code: editedCode, session_id: sessionId }
+        {
+          intent,
+          code: editedCode,
+          test_code: testCode,
+          file_path: null, // 🔥 IMPORTANT (or store from generate if you want)
+          test_file_path: null
+        }
       );
 
       addMessage(
@@ -163,6 +192,9 @@ export default function AIAssistant() {
     if (action === "view_jira_stories") handleViewJiraStories();
     if (action === "select_rule") handleSelectRule(payload);
     if (action === "analyze_more") handleMoreAnalysis();
+    if (action === "make_changes") {
+      addMessage("assistant", "Tell me what changes you want.");
+    }
   };
 
   const handleViewJiraStories = async () => {
@@ -186,7 +218,6 @@ export default function AIAssistant() {
           }))
         );
       }
-
     } catch {
       addMessage("assistant", "Failed to fetch rules.");
     }
@@ -206,11 +237,7 @@ export default function AIAssistant() {
 
       const data = res.data?.intent || res.data;
 
-      addMessage(
-        "assistant",
-        JSON.stringify(data, null, 2)
-      );
-
+      addMessage("assistant", JSON.stringify(data, null, 2));
     } catch {
       addMessage("assistant", "Couldn't analyze further.");
     }
@@ -240,7 +267,6 @@ Created: ${s.created_at}`
 
         addMessage("assistant", formatted);
       }
-
     } catch {
       addMessage("assistant", "Error fetching Jira.");
     }
@@ -250,9 +276,9 @@ Created: ${s.created_at}`
 
   return (
     <div className="h-full flex flex-col bg-gray-50 overflow-hidden">
+
       {/* CHAT */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -284,7 +310,6 @@ Created: ${s.created_at}`
                 return <div key={i}>{line}</div>;
               })}
 
-              {/* 🔥 FIXED ACTION BUTTONS */}
               {msg.actions?.length > 0 && (
                 <div className="flex gap-2 mt-3 flex-wrap">
 
@@ -292,11 +317,7 @@ Created: ${s.created_at}`
 
                     if (a === "approve") {
                       return (
-                        <button
-                          key={idx}
-                          className="bg-red-600 text-white px-4 py-2 rounded-full"
-                          onClick={() => handleAction(a)}
-                        >
+                        <button key={idx} className="bg-red-600 text-white px-4 py-2 rounded-full" onClick={() => handleAction(a)}>
                           APPROVE
                         </button>
                       );
@@ -304,37 +325,40 @@ Created: ${s.created_at}`
 
                     if (a === "analyze_more") {
                       return (
-                        <button
-                          key={idx}
-                          className="bg-red-500 text-white px-4 py-2 rounded-full"
-                          onClick={() => handleAction(a)}
-                        >
+                        <button key={idx} className="bg-red-600 text-white px-5 py-2 rounded-full" onClick={() => handleAction(a)}>
                           MORE ANALYSIS
                         </button>
                       );
                     }
 
-                    if (typeof a === "string") {
+                    if (a === "create_pr") {
                       return (
-                        <button
-                          key={idx}
-                          className="bg-gray-200 px-3 py-1 rounded-full"
-                          onClick={() => handleAction(a)}
-                        >
-                          {a}
-                        </button>
+                        <div key={idx} className="flex gap-2 flex-wrap">
+
+                          <button
+                            className="bg-red-600 text-white px-4 py-2 rounded-full"
+                            onClick={() => handleAction("create_pr")}
+                          >
+                            CREATE PR
+                          </button>
+
+                          <button
+                            className="bg-red-600 text-white px-5 py-2 rounded-full"
+                            onClick={() => handleAction("make_changes")}
+                          >
+                            MAKE CHANGES
+                          </button>
+
+                          <button
+                            className="bg-red-600 text-white px-5 py-2 rounded-full"
+                            onClick={() => setShowEditor(true)}
+                          >
+                            OPEN EDITOR
+                          </button>
+
+                        </div>
                       );
                     }
-
-                    return (
-                      <button
-                        key={idx}
-                        className="bg-blue-100 px-3 py-1 rounded-full"
-                        onClick={() => handleAction("select_rule", a.value)}
-                      >
-                        {a.label}
-                      </button>
-                    );
                   })}
 
                 </div>
@@ -345,13 +369,58 @@ Created: ${s.created_at}`
         ))}
 
         {loading && <div className="text-gray-400">Thinking...</div>}
-
         <div ref={bottomRef} />
       </div>
 
+      {/* 🔥 EDITOR MODAL */}
+      {showEditor && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white w-[90%] h-[85%] rounded-xl flex flex-col shadow-lg">
+
+            <div className="flex justify-between items-center p-4 border-b">
+              <div className="flex gap-3">
+                <button
+                  className={`px-4 py-1 rounded-full ${activeTab === "rule" ? "bg-red-600 text-white" : "bg-gray-200"}`}
+                  onClick={() => setActiveTab("rule")}
+                >
+                  Rule File
+                </button>
+                <button
+                  className={`px-4 py-1 rounded-full ${activeTab === "test" ? "bg-red-600 text-white" : "bg-gray-200"}`}
+                  onClick={() => setActiveTab("test")}
+                >
+                  Test File
+                </button>
+              </div>
+
+              <button onClick={() => setShowEditor(false)}>✕</button>
+            </div>
+
+            <Editor
+              height="100%"
+              language="javascript"
+              value={activeTab === "rule" ? editedCode : testCode}
+              onChange={(value) => {
+                if (activeTab === "rule") setEditedCode(value);
+                else setTestCode(value);
+              }}
+            />
+
+            <div className="p-4 border-t flex justify-end gap-3">
+              <button className="bg-red-500 text-white px-5 py-2 rounded-full">
+                MAKE CHANGES
+              </button>
+              <button className="bg-red-600 text-white px-5 py-2 rounded-full" onClick={handleCreatePR}>
+                CREATE PR
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* INPUT */}
       <div className="p-4 border-t bg-white flex gap-3">
-
         <input
           className="flex-1 border rounded-full px-4 py-2 text-sm"
           placeholder="Paste Jira story or ask for changes..."
@@ -360,20 +429,13 @@ Created: ${s.created_at}`
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         />
 
-        <button
-          onClick={handleSubmit}
-          className="bg-red-600 text-white px-5 py-2 rounded-full"
-        >
+        <button onClick={handleSubmit} className="bg-red-600 text-white px-5 py-2 rounded-full">
           Send
         </button>
 
-        <button
-          onClick={handleViewJiraStories}
-          className="bg-red-600 text-white px-4 py-2 rounded-full"
-        >
+        <button onClick={handleViewJiraStories} className="bg-red-600 text-white px-4 py-2 rounded-full">
           View Jira Stories
         </button>
-
       </div>
     </div>
   );

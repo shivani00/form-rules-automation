@@ -224,6 +224,8 @@ def codegen_node(state):
     state["generated_code"] = parsed.get("code", "")
     state["file_path"] = parsed.get("file_path", "")
     state["validation"] = validate_js(state["generated_code"])
+    state["test_code"] = parsed.get("test_code", "")         
+    state["test_file_path"] = parsed.get("test_file_path", "") 
 
     return state
 

@@ -4,14 +4,12 @@ from fastapi import APIRouter
 from services.github_service import commit_file, create_branch, create_pr
 from graph.flow import build_graph
 from logger import get_logger
-from services.jira_service import update_jira_with_file
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/automation")
 
 graph = build_graph()
-
 
 @router.post("/generate")
 def generate(payload: dict):
@@ -22,17 +20,12 @@ def generate(payload: dict):
         "intent": payload["intent"]
     })
 
-    rule_number = payload["intent"].get("rule_number")
-    file_path = result.get("file_path")
-
-    if rule_number and file_path:
-        update_jira_with_file(rule_number, file_path)
-
     return {
         "code": result["generated_code"],
         "file_path": result["file_path"],
-        "diff": result["diff"],
-        "validation": result.get("validation")
+        "test_code": result.get("test_code"),
+        "test_file_path": result.get("test_file_path"),
+        "diff": result.get("diff")
     }
 
 @router.post("/create-pr")
@@ -41,38 +34,61 @@ def create_pr_route(payload: dict):
     logger.info("Creating PR")
 
     intent = payload["intent"]
-    code = payload["code"]
+    code = payload.get("code")
+    test_code = payload.get("test_code")
 
-    # 🔥 NEW NAMING LOGIC
+    file_path = payload.get("file_path")
+    test_file_path = payload.get("test_file_path")
+
     rule_number = intent.get("rule_number")
-    form_number_raw = intent["form_number"]
 
-    # clean values
-    form_number = form_number_raw.replace("(", "").replace(")", "")
-    safe_rule = rule_number.replace(" ", "-")
-    safe_form = form_number.replace(" ", "-")
+    # 🔴 HARD SAFETY CHECK
+    if not code or len(code.strip()) < 20:
+        logger.error("❌ EMPTY OR INVALID CODE RECEIVED")
+        return {
+            "message": "Code generation failed. No code to commit.",
+            "error": "Empty code"
+        }
 
-    # ✅ FILE NAME = RULE TYPE
-    file_name = safe_rule
+    # 🔥 fallback ONLY if missing
+    if not file_path:
+        form_number_raw = intent["form_number"]
+        form_number = form_number_raw.replace("(", "").replace(")", "")
 
-    # ✅ BRANCH NAME = RULE + FORM
-    branch = f"feature/{safe_rule}-{safe_form}"
+        safe_rule = rule_number.replace(" ", "-")
+        safe_form = form_number.replace(" ", "-")
 
-    # 🔥 ADD BACK THESE (MISSING)
-    workstream = intent.get("workstream", "wc").lower()
-    form_type = intent.get("form_type", "text").lower()
+        workstream = intent.get("workstream", "wc").lower()
+        form_type = intent.get("form_type", "text").lower()
 
-    folder = "fillin-forms" if form_type == "fillin" else "text-forms"
+        folder = "fillin-forms" if form_type == "fillin" else "text-forms"
 
-    # ✅ FINAL PATH
-    file_path = f"forms-{workstream}/{folder}/{file_name}.js"
+        file_name = safe_rule
+        file_path = f"forms-{workstream}/{folder}/{file_name}.js"
+        test_file_path = f"forms-{workstream}/{folder}/{file_name}.test.ts"
+
+        branch = f"feature/{safe_rule}-{safe_form}"
+    else:
+        safe_rule = rule_number.replace(" ", "-")
+        safe_form = intent["form_number"].replace(" ", "-")
+        branch = f"feature/{safe_rule}-{safe_form}"
 
     logger.info(f"Branch: {branch}")
-    logger.info(f"File path: {file_path}")
+    logger.info(f"Rule file: {file_path}")
+    logger.info(f"Test file: {test_file_path}")
 
     try:
         create_branch(branch)
+
+        # ✅ commit rule file
         commit_file(branch, file_path, code)
+
+        # ✅ commit test file
+        if test_code and len(test_code.strip()) > 20:
+            commit_file(branch, test_file_path, test_code)
+        else:
+            logger.warning("⚠️ No valid test_code provided")
+
         pr_url = create_pr(branch)
 
         return {

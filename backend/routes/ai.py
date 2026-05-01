@@ -3,9 +3,7 @@ from agents.jira_agent import get_jira_agent
 from services.jira_service import save_jira_result, get_all_jira
 from logger import get_logger
 from utils.validator import extract_json
-from agents.explain_agent import get_explain_agent
 
-explain_agent = get_explain_agent()
 
 logger = get_logger(__name__)
 
