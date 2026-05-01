@@ -100,14 +100,25 @@ You will receive helper_expressions.
 You MUST:
 - Use them EXACTLY
 - DO NOT modify helper names
+- DO NOT wrap them in custom helper functions
+- DO NOT redefine helpers
 
 -----------------------------------
-IMPORTANT: PATH USAGE
+CRITICAL: NO HELPER DEFINITIONS
+-----------------------------------
+
+- NEVER define helper functions like:
+  function hasCoverage() {}
+- NEVER define compareDates
+- Assume all helpers already exist in runtime
+
+-----------------------------------
+IMPORTANT: PATH USAGE (STRICT)
 -----------------------------------
 
 If helper requires data path:
 
-USE logic.path
+USE logic.path strictly
 
 Example:
 
@@ -117,7 +128,9 @@ hasCoverage(data, "MCDMI")
 CORRECT:
 hasCoverage(data.coverageParts[0], "MCDMI")
 
-NEVER hardcode "data"
+- DO NOT use generic "data"
+- DO NOT use "this.data"
+- ALWAYS use resolved path from logic
 
 -----------------------------------
 STEP 4: CONDITION GROUPING
@@ -133,7 +146,7 @@ NESTED:
 - effective_date ONLY
 
 -----------------------------------
-STEP 5: CONDITION STRUCTURE
+STEP 5: CONDITION STRUCTURE (UPDATED)
 -----------------------------------
 
 Replace the template comment:
@@ -144,28 +157,46 @@ WITH:
 
 var isRuleFired = false;
 
-if (
-    <TOP_LEVEL_CONDITIONS> &&
-    (
-        <DATE_CONDITION>
-    )
-) {
-    isRuleFired = true;
+if (<TOP_LEVEL_CONDITIONS>) {
+
+    if (<DATE_CONDITIONS>) {
+        isRuleFired = true;
+    }
+
 }
 
 -----------------------------------
 STEP 6: DATE LOGIC
 -----------------------------------
 
-Date condition MUST:
+Date comparison MUST follow repository pattern:
 
-- check field exists
-- then compare
+- compareDates returns numeric
+- MUST compare using >= 0
 
-Example:
+-----------------------------------
+VALID DATE FORMAT
+-----------------------------------
 
-data.effectiveDate &&
-compareDates(data.effectiveDate, "<date>")
+CORRECT:
+
+compareDates(data, effectiveDt, "<date>") >= 0
+
+OR (if nested path exists):
+
+compareDates(data.transaction.rateEntryDt, "<date>") >= 0
+
+-----------------------------------
+STRICT DATE RULES
+-----------------------------------
+
+- DO NOT use:
+  compareDates(date1, date2)
+
+- DO NOT use:
+  data.effectiveDate && compareDates(...)
+
+- ALWAYS use >= 0 pattern
 
 -----------------------------------
 STEP 7: CREATE FORM FUNCTION
@@ -186,6 +217,8 @@ STEP 8: CLEANUP
 
 - REMOVE "// Code Logic" comment completely
 - DO NOT leave placeholders like <...>
+- DO NOT generate helper functions
+- DO NOT use "this.data"
 - Ensure valid JavaScript
 
 -----------------------------------
@@ -227,21 +260,15 @@ TEST FILE RULES
 - Same as rule file
 - Format: <rule_number>.test.ts
 
-Example:
-WA12002233.js
-WA12002233.test.ts
-
 -----------------------------------
 2. Test Structure
 -----------------------------------
 
-Use standard Jest-style tests.
+Use Jest-style tests.
 
 -----------------------------------
 3. Import Rule
 -----------------------------------
-
-Import generated rule:
 
 const rule = require("<relative path>");
 
@@ -249,15 +276,11 @@ const rule = require("<relative path>");
 4. TEST CASES REQUIRED
 -----------------------------------
 
-You MUST generate:
-
 (A) POSITIVE TEST
-- Conditions satisfied
 - Rule SHOULD fire
 
-(B) NEGATIVE TEST
-- One condition fails
-- Rule SHOULD NOT fire
+(B) NEGATIVE TESTS
+- Each condition failure should be tested
 
 -----------------------------------
 5. MOCK DATA STRUCTURE
@@ -265,25 +288,18 @@ You MUST generate:
 
 Use realistic structure based on logic.path
 
-Example:
-
-const data = {
-  coverageParts: [{ code: "MCDMI" }],
-  stateCd: "MI",
-  effectiveDate: "2026-01-01"
-};
-
 -----------------------------------
-6. ASSERTION
+6. ASSERTION 
 -----------------------------------
 
-Mock createNewFormsListItemXX:
+- Mock createNewFormsListItemXX
+- Use:
 
-Use spy or mock function.
+expect(createNewFormsListItemXX).toHaveBeenCalled()
 
-Check:
+or
 
-expect(isRuleFired).toBe(true)
+expect(createNewFormsListItemXX).not.toHaveBeenCalled()
 
 -----------------------------------
 7. TEST QUALITY
