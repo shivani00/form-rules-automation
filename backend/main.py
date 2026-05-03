@@ -6,6 +6,7 @@ from routes.rules import router as rules_router
 from routes.osari import router as osari_router
 from routes.ai import router as ai_router
 from routes.automation import router as automation_router
+
 from logger import get_logger
 from config import config
 

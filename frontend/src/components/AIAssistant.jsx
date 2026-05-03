@@ -171,6 +171,42 @@ export default function AIAssistant() {
     }
   };
 
+  const handleMakeChanges = async (text) => {
+    const instruction = text || input;
+
+    if (!instruction?.trim()) return;
+
+    setLoading(true);
+    setInput("");
+
+    addMessage("assistant", "Applying your changes...");
+
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/automation/make-changes",
+        {
+          instruction,
+          session_id: sessionId,
+          code: editedCode,        // fallback safety
+          test_code: testCode      // fallback safety
+        }
+      );
+
+      const updatedCode = res.data?.code || editedCode;
+      const updatedTest = res.data?.test_code || testCode;
+
+      setEditedCode(updatedCode);
+      setTestCode(updatedTest);
+      setShowEditor(true);
+
+      addMessage("assistant", "Done 👍 Your changes have been applied.");
+    } catch (err) {
+      addMessage("assistant", "Failed to apply changes.");
+    }
+
+    setLoading(false);
+  };
+
   const handleSubmit = async () => {
     if (!input.trim()) return;
 
@@ -182,7 +218,7 @@ export default function AIAssistant() {
     if (!intent) {
       await handleAnalyze(userInput);
     } else {
-      await handleChanges(userInput);
+      await handleMakeChanges(userInput);
     }
   };
 
@@ -194,6 +230,9 @@ export default function AIAssistant() {
     if (action === "analyze_more") handleMoreAnalysis();
     if (action === "make_changes") {
       addMessage("assistant", "Tell me what changes you want.");
+      setTimeout(() => {
+        document.querySelector("input")?.focus();
+      }, 100);
     }
   };
 
@@ -243,6 +282,23 @@ export default function AIAssistant() {
     }
 
     setLoading(false);
+  };
+
+  const handleNewSession = async () => {
+    await axios.post("http://localhost:8080/automation/reset-session", {
+      session_id: sessionId
+    });
+
+    setMessages([]);
+    setIntent(null);
+    setEditedCode("");
+    setTestCode("");
+    setShowEditor(false);
+
+    const newSession = Date.now().toString();
+    setSessionId(newSession);
+
+    addMessage("assistant", "New session started 🚀");
   };
 
   const handleSelectRule = async (ruleNumber) => {
@@ -343,8 +399,11 @@ Created: ${s.created_at}`
                           </button>
 
                           <button
-                            className="bg-red-600 text-white px-5 py-2 rounded-full"
-                            onClick={() => handleAction("make_changes")}
+                            className="bg-red-600 text-white px-4 py-2 rounded-full"
+                            onClick={() => {
+                              addMessage("assistant", "Tell me what changes you want.");
+                              document.querySelector("input")?.focus();
+                            }}
                           >
                             MAKE CHANGES
                           </button>
@@ -421,10 +480,16 @@ Created: ${s.created_at}`
             />
 
             <div className="p-4 border-t flex justify-end gap-3">
-              <button className="bg-red-500 text-white px-5 py-2 rounded-full">
+              <button className="bg-red-600 text-white px-5 py-2 rounded-full" onClick={() => {
+                addMessage("assistant", "What changes should I apply?");
+                document.querySelector("input")?.focus();
+              }}>
                 MAKE CHANGES
               </button>
-              <button className="bg-red-600 text-white px-5 py-2 rounded-full" onClick={handleCreatePR}>
+              <button
+                className="bg-red-600 text-white px-5 py-2 rounded-full"
+                onClick={handleCreatePR}
+              >
                 CREATE PR
               </button>
             </div>
